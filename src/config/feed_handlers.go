@@ -36,7 +36,26 @@ func (cfg *ApiConfig) HandleCreateFeed(write http.ResponseWriter, req *http.Requ
 		return
 	}
 
-	http_helpers.RespondWithJson(write, http.StatusAccepted, models.ConvertToFeedModel(feed))
+	feed_follow, err := cfg.Db.AddFollow(req.Context(), database.AddFollowParams{
+		ID: uuid.New(),
+		CreatedAt: time.Now().UTC(),
+		UpdatedAt: time.Now().UTC(),
+		UserID: user.ID,
+		FeedID: feed.ID,
+	}); if err != nil {
+		http_helpers.RespondWithError(write, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	res := struct{
+		Feed models.Feed `json:"feed"`
+		FeedFollow models.FeedFollow `json:"feed_follow"`
+	}{
+		models.ConvertToFeedModel(feed),
+		models.ConvertToFeedFollowModel(feed_follow),
+	}
+
+	http_helpers.RespondWithJson(write, http.StatusAccepted, res)
 }
 
 func (cfg *ApiConfig) HandleGetAllFeeds(write http.ResponseWriter, req *http.Request) {

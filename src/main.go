@@ -41,7 +41,7 @@ func main () {
 	dbQueries := database.New(db)
 
 	//Setup config
-	cfg := config.ApiConfig{dbQueries, port}
+	cfg := config.ApiConfig{Db: dbQueries, Port: port}
 
 	//Router declarations
 	router := chi.NewRouter()
@@ -62,13 +62,17 @@ func main () {
 	//POST Routes
 	v1Router.Post("/users", cfg.HandleCreateUser)
 	v1Router.Post("/feeds", cfg.AuthMiddleware(cfg.HandleCreateFeed))
+	v1Router.Post("feed_follows", cfg.AuthMiddleware(cfg.HandleAddFollow))
 
 	//GET Routes
 	v1Router.Get("/users", cfg.AuthMiddleware(cfg.HandleGetUserByAPIKey))
 	v1Router.Get("/feeds", cfg.HandleGetAllFeeds)
+	v1Router.Get("/feed_follows", cfg.AuthMiddleware(cfg.HandleGetUserFollows))
 	v1Router.Get("/err", config.HandleServerError)
 	v1Router.Get("/ready", config.HandleServerReady)
 	
+	//DELETE Routes
+	v1Router.Delete("/feed_follows/{followId}", cfg.AuthMiddleware(cfg.HandleRemoveFollow))
 
 	server := &http.Server{
 		Addr: ":" + port,
