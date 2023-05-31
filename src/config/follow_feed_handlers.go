@@ -25,11 +25,11 @@ func (cfg *ApiConfig) HandleAddFollow(write http.ResponseWriter, req *http.Reque
 	}
 
 	follow, err := cfg.Db.AddFollow(req.Context(), database.AddFollowParams{
-		ID: uuid.New(),
+		ID:        uuid.New(),
 		CreatedAt: time.Now().UTC(),
 		UpdatedAt: time.Now().UTC(),
-		UserID: user.ID,
-		FeedID: params.FeedID,
+		UserID:    user.ID,
+		FeedID:    params.FeedID,
 	}); if err != nil {
 		http_helpers.RespondWithError(write, http.StatusInternalServerError, err.Error())
 		return
@@ -54,7 +54,7 @@ func (cfg *ApiConfig) HandleRemoveFollow(write http.ResponseWriter, req *http.Re
 	}
 
 	err = cfg.Db.RemoveFollow(req.Context(), database.RemoveFollowParams{
-		ID: idParam,
+		ID:     idParam,
 		UserID: user.ID,
 	}); if err != nil {
 		http_helpers.RespondWithError(write, http.StatusInternalServerError, "Couldn't delete feed follow")

@@ -5,9 +5,11 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"time"
 
-	"github.com/ddomd/feeder/internal/database"
 	"github.com/ddomd/feeder/config"
+	"github.com/ddomd/feeder/internal/database"
+	"github.com/ddomd/feeder/utils/scraper"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/cors"
 	"github.com/joho/godotenv"
@@ -62,22 +64,28 @@ func main () {
 	//POST Routes
 	v1Router.Post("/users", cfg.HandleCreateUser)
 	v1Router.Post("/feeds", cfg.AuthMiddleware(cfg.HandleCreateFeed))
-	v1Router.Post("feed_follows", cfg.AuthMiddleware(cfg.HandleAddFollow))
+	v1Router.Post("/feed_follows", cfg.AuthMiddleware(cfg.HandleAddFollow))
 
 	//GET Routes
 	v1Router.Get("/users", cfg.AuthMiddleware(cfg.HandleGetUserByAPIKey))
 	v1Router.Get("/feeds", cfg.HandleGetAllFeeds)
 	v1Router.Get("/feed_follows", cfg.AuthMiddleware(cfg.HandleGetUserFollows))
+	v1Router.Get("/posts", cfg.AuthMiddleware(cfg.HandleGetUserPosts))
 	v1Router.Get("/err", config.HandleServerError)
 	v1Router.Get("/ready", config.HandleServerReady)
 	
 	//DELETE Routes
+	v1Router.Delete("/feeds/{feedId}", cfg.AuthMiddleware(cfg.HandleDeleteFeed))
 	v1Router.Delete("/feed_follows/{followId}", cfg.AuthMiddleware(cfg.HandleRemoveFollow))
 
 	server := &http.Server{
 		Addr: ":" + port,
 		Handler: router,
 	}
+
+	const collectionConcurrency = 10
+	const collectionInterval = time.Minute
+	go scraper.StartScraping(cfg.Db, collectionConcurrency, collectionInterval)
 
 	err = server.ListenAndServe(); if err != nil {
 		log.Fatal(err.Error())

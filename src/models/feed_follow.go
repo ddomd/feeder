@@ -8,11 +8,11 @@ import (
 )
 
 type FeedFollow struct {
-	ID uuid.UUID `json:"id"`
+	ID        uuid.UUID `json:"id"`
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
-	UserID uuid.UUID `json:"user_id"`
-	FeedID uuid.UUID `json:"feed_id"`
+	UserID    uuid.UUID `json:"user_id"`
+	FeedID    uuid.UUID `json:"feed_id"`
 }
 
 type FeedFollows struct {
@@ -21,11 +21,11 @@ type FeedFollows struct {
 
 func ConvertToFeedFollowModel(feed database.FeedFollow) FeedFollow {
 	return FeedFollow{
-		feed.ID,
-		feed.CreatedAt,
-		feed.UpdatedAt,
-		feed.UserID,
-		feed.FeedID,
+		ID:        feed.ID,
+		CreatedAt: feed.CreatedAt,
+		UpdatedAt: feed.UpdatedAt,
+		UserID:    feed.UserID,
+		FeedID:    feed.FeedID,
 	}
 }
 

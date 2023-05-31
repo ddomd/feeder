@@ -24,10 +24,10 @@ func (cfg *ApiConfig) HandleCreateUser(write http.ResponseWriter, req *http.Requ
 	}
 
 	user, err := cfg.Db.CreateUser(req.Context(), database.CreateUserParams{
-		ID: uuid.New(),
+		ID:        uuid.New(),
 		CreatedAt: time.Now().UTC(),
 		UpdatedAt: time.Now().UTC(),
-		Username: params.Username,
+		Username:  params.Username,
 	}); if err != nil {
 		http_helpers.RespondWithError(write, http.StatusInternalServerError, err.Error())
 		return
